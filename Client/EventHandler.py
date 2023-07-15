@@ -1,17 +1,17 @@
 import pygame
 from pygame.locals import *
+import DrawnThingsTracker
 import GlobalVariables
 from Pen import Pen
 from TextWriter import Writer
 from DrawObject import DrawObject
-from BoardDraw import Board
 
 class EventHandler:
-    def __init__(self, screen):
+    def __init__(self, screen, client):
         self.screen = screen
         self.pen = Pen(screen)
-        self.writer = Writer(self.screen)
-        self.board = Board(self.screen)
+        self.client = client
+        self.writer = Writer(self.screen, client)
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -33,7 +33,7 @@ class EventHandler:
                         return
 
                     self.pen.draw(x, y)
-                    GlobalVariables.draw_coordinates.append(DrawObject(x, y, self.pen.drawSize, self.pen.BLUE))
+                    DrawnThingsTracker.draw_coordinates.append(DrawObject(x, y, self.pen.drawSize, self.pen.BLUE))
 
                     pygame.display.flip()
 
