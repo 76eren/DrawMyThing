@@ -21,6 +21,10 @@ class Writer:
         self.client = client
 
     def write(self, key):
+        # Blocks underscores in the chat, so it won't interfere with the client server communication
+        if key == "_":
+            return
+
         self.text += key
         self.typed_message = self.text
 
