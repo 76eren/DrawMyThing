@@ -26,6 +26,19 @@ class Server:
             else:
                 self.lobby_join(client_address, room_number, create_new_lobby=True)
 
+        # Receies chat message from server. Forwards the chatmessage to all clients in lobby except the sender
+        # Format: ChatMessage_playernumber_lobbynumber_message
+
+        if command.startswith("ChatMessage"):
+            # iterates over all room numbers
+            lobby_number = command.split("_")[2]
+            player_number = command.split("_")[1]
+
+            for index, player in enumerate(self.room.get(lobby_number)):
+                if index + 1 != int(player_number):
+                    self.send_reply_to_client(command, player)
+
+
     def lobby_join(self, client_address, room_number, create_new_lobby=False):
         if create_new_lobby:
             self.room[room_number] = []  # We create a new lobby

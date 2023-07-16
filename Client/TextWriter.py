@@ -51,7 +51,10 @@ class Writer:
             self.client.command(self.text)
             self.chat_history.append(TextObject("Attempting to connect", "SYSTEM"))
         else:
-            self.chat_history.append(TextObject(self.text, "User 1"))
+            self.chat_history.append(TextObject(self.text, f"User {self.client.player_number}"))
+            if self.client.is_connected:
+                # Format: sendChatMessage_playernumber_lobbynumber_message
+                self.client.command(f"sendChatMessage_{self.client.player_number}_{self.client.lobby_number}_{self.text}")
 
         self.text = ""
         self.typed_message = self.text

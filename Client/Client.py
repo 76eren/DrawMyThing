@@ -8,8 +8,10 @@ class Client:
         self.server_port = 6969
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.client_socket.bind(('0.0.0.0', 0))  # Bind to any available local address and port
-        self.player_number = None
+        self.player_number = ""
         self.event_handler = None  # Woohoo, nested object hell. Boy I sure love OOP
+        self.is_connected = False
+        self.lobby_number = None
 
         # Starts the message listener in another thread
         message_listener = threading.Thread(target=self.receive_message)
@@ -32,10 +34,12 @@ class Client:
             print(f"Received response from server: {response}")
 
     # TODO: Make different functions for incoming and outgoing commands
-    def command(self, command):
+    def command(self, command: str):
+        print(f"Command is: {command}")
         if command.startswith("/connect"):
             try:
                 room_to_join = command.split(" ")[1]
+                self.lobby_number = room_to_join
                 self.send_message(f"connectroom_{room_to_join}")
 
 
@@ -43,15 +47,12 @@ class Client:
                 print("Invalid command")
                 return
 
-        # This command updates the local chat with the new message
-        if command.startswith("chat_"):
-            pass
-
         # This means the client successfully joined a lobby or was unable to join a lobby
         if command.startswith("lobbyjoin_"):
             if "lobbyjoin_failed" in command:
                 print("Failed to join lobby")
                 self.send_message_to_chat("Failed to join lobby", "SYSTEM")
+                self.lobby_number = None
                 return
 
             if "lobbyjoin_success" in command:
@@ -59,6 +60,21 @@ class Client:
                 print(f"Successfully joined lobby, you are player {self.player_number}")
                 self.send_message_to_chat(f"Successfully joined lobby", "SYSTEM")
                 self.send_message_to_chat(f"you are player {self.player_number}", "SYSTEM")
+                self.is_connected = True
+
+
+        # Receives chat message from server
+        # Format: ChatMessage_playernumber_lobbynumber_message
+        if command.startswith("ChatMessage"):
+            player_number = command.split("_")[1]
+            message = command.split("_")[3]
+            self.send_message_to_chat(message, f"User {player_number}")
+
+        # Sends chat message to server
+        # Format: sendChatMessage_playernumber_lobbynumber_message
+        if command.startswith("sendChatMessage"):
+            command = command.replace("send", "")
+            self.send_message(command)
 
     def assign_player_number(self, number):
         self.player_number = number
