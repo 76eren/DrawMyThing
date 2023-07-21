@@ -13,6 +13,9 @@ class Client:
         self.is_connected = False
         self.lobby_number = None
 
+        self.turn_to_draw = False
+        self.drawn_coordinates = None
+
         # Starts the message listener in another thread
         message_listener = threading.Thread(target=self.receive_message)
 
@@ -30,23 +33,10 @@ class Client:
         while True:
             response, server_address = self.client_socket.recvfrom(1024)
             response = response.decode('utf-8')
-            self.command(response)
+            self.incoming_command(response)
             print(f"Received response from server: {response}")
 
-    # TODO: Make different functions for incoming and outgoing commands
-    def command(self, command: str):
-        print(f"Command is: {command}")
-        if command.startswith("/connect"):
-            try:
-                room_to_join = command.split(" ")[1]
-                self.lobby_number = room_to_join
-                self.send_message(f"connectroom_{room_to_join}")
-
-
-            except IndexError:
-                print("Invalid command")
-                return
-
+    def incoming_command(self, command: str):
         # This means the client successfully joined a lobby or was unable to join a lobby
         if command.startswith("lobbyjoin_"):
             if "lobbyjoin_failed" in command:
@@ -62,7 +52,6 @@ class Client:
                 self.send_message_to_chat(f"you are player {self.player_number}", "SYSTEM")
                 self.is_connected = True
 
-
         # Receives chat message from server
         # Format: ChatMessage_playernumber_lobbynumber_message
         if command.startswith("ChatMessage"):
@@ -70,14 +59,40 @@ class Client:
             message = command.split("_")[3]
             self.send_message_to_chat(message, f"User {player_number}")
 
+        # Format: Yourturn_word
+        if command.startswith("Yourturn"):
+            print(f"It is my turn and the word is: {command.split('_')[1]}")
+
+        # Format: Notyourturn_lengtofword
+        if command.startswith("Notyourturn"):
+            print(f"It is not my turn and the word length is: {command.split('_')[1]}")
+
+    def outgoing_command(self, command: str):
+        if command.startswith("/connect"):
+            try:
+                room_to_join = command.split(" ")[1]
+                self.lobby_number = room_to_join
+                self.send_message(f"connectroom_{room_to_join}")
+
+            except IndexError:
+                print("Invalid command")
+                return
+
         # Sends chat message to server
         # Format: sendChatMessage_playernumber_lobbynumber_message
         if command.startswith("sendChatMessage"):
             command = command.replace("send", "")
             self.send_message(command)
 
+        if command.startswith("startGame"):
+            if self.player_number == 1:
+                self.send_message(command)
+                self.send_message_to_chat("Starting game", "SYSTEM")
+            else:
+                self.send_message_to_chat("Only the host can start the game", "SYSTEM")
+
     def assign_player_number(self, number):
-        self.player_number = number
+        self.player_number = int(number)
 
     def send_message_to_chat(self, message, user):
         self.event_handler.writer.push_a_message_to_chat(message, user)

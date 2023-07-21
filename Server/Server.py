@@ -1,4 +1,6 @@
 import socket
+from GameController import Controller
+import threading
 
 
 class Server:
@@ -7,7 +9,9 @@ class Server:
         self.server_port = 6969
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server_socket.bind((self.server_ip, self.server_port))
+
         self.room = {}  # int : []
+        self.started_game_rooms = []  # A list with Controller object where each object represents a room/game
 
     def listen(self):
         while True:
@@ -17,6 +21,7 @@ class Server:
             self.command(message, client_address)
 
     def command(self, command: str, client_address):
+        # Connects a client to a room
         if command.startswith("connectroom_"):
             room_number = command.split("_")[1]
 
@@ -26,9 +31,8 @@ class Server:
             else:
                 self.lobby_join(client_address, room_number, create_new_lobby=True)
 
-        # Receies chat message from server. Forwards the chatmessage to all clients in lobby except the sender
+        # Receives chat message from server. Forwards the chatmessage to all clients in lobby except the sender
         # Format: ChatMessage_playernumber_lobbynumber_message
-
         if command.startswith("ChatMessage"):
             # iterates over all room numbers
             lobby_number = command.split("_")[2]
@@ -38,6 +42,11 @@ class Server:
                 if index + 1 != int(player_number):
                     self.send_reply_to_client(command, player)
 
+        # I have set up the client in a way where only the host (so player 1) may send this packet to the server
+        # Format: startGame_playernumber_lobbynumber
+        if command.startswith("startGame"):
+            room = command.split("_")[1]
+            self.started_game_rooms.append(Controller(room, self.room.get(room), self))
 
     def lobby_join(self, client_address, room_number, create_new_lobby=False):
         if create_new_lobby:

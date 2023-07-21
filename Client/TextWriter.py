@@ -51,14 +51,12 @@ class Writer:
 
         self.board.redraw_all()
 
-        if self.text.startswith("/connect"):
-            self.client.command(self.text)
+        if self.text.startswith("/connect") and not self.client.is_connected:
+            self.client.outgoing_command(self.text)
             self.chat_history.append(TextObject("Attempting to connect", "SYSTEM"))
         else:
             self.chat_history.append(TextObject(self.text, f"User {self.client.player_number}"))
-            if self.client.is_connected:
-                # Format: sendChatMessage_playernumber_lobbynumber_message
-                self.client.command(f"sendChatMessage_{self.client.player_number}_{self.client.lobby_number}_{self.text}")
+            self.check_for_possible_commands()
 
         self.text = ""
         self.typed_message = self.text
@@ -68,6 +66,19 @@ class Writer:
 
         text_surface = self.font.render(self.text, False, (0, 0, 255))
         self.screen.blit(text_surface, self.text_coords)
+
+    def check_for_possible_commands(self):
+        # TODO: A LOT OF THESE BELONG IN THE Client.command function, the string that should be sent to the server
+        #  should be formatted there, NOT HERE
+
+        if self.client.is_connected:
+            # Format: sendChatMessage_playernumber_lobbynumber_message
+            self.client.outgoing_command(
+                f"sendChatMessage_{self.client.player_number}_{self.client.lobby_number}_{self.text}")
+
+            # Format: startGame_playernumber_lobbynumber
+            if self.text.startswith("/startgame"):
+                self.client.outgoing_command(f"startGame_{self.client.player_number}_{self.client.lobby_number}")
 
     def update_chat(self):
         self.screen.fill((255, 255, 255))
