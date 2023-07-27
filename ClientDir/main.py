@@ -3,7 +3,8 @@ from Pen import Pen
 import GlobalVariables
 from EventHandler import EventHandler
 from BoardDraw import Board
-from Client import Client
+from ClientDir import Client
+from WordDisplay.DisplayDrawer import DisplayDrawer
 
 pygame.init()
 
@@ -14,7 +15,7 @@ screen.fill(BGCOLOR)
 pygame.display.flip()
 
 # Creates a client
-client = Client()
+client = Client.Client()
 
 # Sets up variables
 pen = Pen(screen)

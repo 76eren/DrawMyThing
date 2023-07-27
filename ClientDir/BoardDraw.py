@@ -11,7 +11,6 @@ class Board:
         self.pen = Pen(self.screen)
         self.writer = writer
 
-
     def redraw_all(self):
         self.screen.fill((255, 255, 255))
         self.draw_stage()
@@ -32,15 +31,9 @@ class Board:
         # We re-draw all the chat
         self.writer.update_chat()
 
-
     # This function is supposed to be called from the TextWriter.update_chat function
     # The reason I made this function is to prevent recursion
     def draw_some_of_the_rest(self):
         # We re-draw all the drawing made
         for i in DrawnThingsTracker.draw_coordinates:
             self.pen.draw(i.x, i.y)
-
-
-
-
-

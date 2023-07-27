@@ -68,7 +68,7 @@ class Writer:
         self.screen.blit(text_surface, self.text_coords)
 
     def check_for_possible_commands(self):
-        # TODO: A LOT OF THESE BELONG IN THE Client.command function, the string that should be sent to the server
+        # TODO: A LOT OF THESE BELONG IN THE ClientDir.command function, the string that should be sent to the server
         #  should be formatted there, NOT HERE
 
         if self.client.is_connected:

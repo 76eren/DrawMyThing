@@ -5,6 +5,8 @@ import GlobalVariables
 from Pen import Pen
 from TextWriter import Writer
 from DrawObject import DrawObject
+from WordDisplay.DisplayDrawer import DisplayDrawer
+
 
 class EventHandler:
     def __init__(self, screen, client):
