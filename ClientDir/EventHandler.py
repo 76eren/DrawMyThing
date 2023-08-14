@@ -6,14 +6,21 @@ from Pen import Pen
 from TextWriter import Writer
 from DrawObject import DrawObject
 from WordDisplay.DisplayDrawer import DisplayDrawer
+from WordDisplay.DisplayGuesser import DisplayGuesser
+from BoardDraw import Board
 
 
 class EventHandler:
     def __init__(self, screen, client):
         self.screen = screen
+
+        # Sometimes I feel like making all of these objects a static somewhere would have saved me a lot of trouble
         self.pen = Pen(screen)
         self.client = client
         self.writer = Writer(self.screen, client)
+        self.board = Board(self.screen, self.writer)
+
+        self.board.redraw_all()
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -35,7 +42,8 @@ class EventHandler:
                         return
 
                     self.pen.draw(x, y)
-                    DrawnThingsTracker.draw_coordinates.append(DrawObject(x, y, self.pen.drawSize, self.pen.BLUE))
+                    DrawnThingsTracker.StaticDrawnThings.draw_coordinates.append(
+                        DrawObject(x, y, self.pen.drawSize, self.pen.BLUE))
 
                     pygame.display.flip()
 

@@ -4,7 +4,6 @@ import GlobalVariables
 from EventHandler import EventHandler
 from BoardDraw import Board
 from ClientDir import Client
-from WordDisplay.DisplayDrawer import DisplayDrawer
 
 pygame.init()
 
@@ -33,4 +32,4 @@ board.draw_stage()
 while GlobalVariables.running:
     event_handler.handle_events()
 
-exit()
+pygame.quit()
