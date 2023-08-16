@@ -1,9 +1,12 @@
 import socket
 import threading
+from WordDisplay.DisplayGuesser import DisplayGuesser
+from WordDisplay.DisplayDrawer import DisplayDrawer
+from BoardDraw import Board
 
 
 class Client:
-    def __init__(self):
+    def __init__(self, screen):
         self.server_ip = '127.0.0.1'
         self.server_port = 6969
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -12,9 +15,13 @@ class Client:
         self.event_handler = None  # Woohoo, nested object hell. Boy I sure love OOP
         self.is_connected = False
         self.lobby_number = None
+        self.screen = screen
+        self.board = Board(screen)
 
         self.turn_to_draw = False
         self.drawn_coordinates = None
+        self.guesser = DisplayGuesser(self.board)
+        self.drawer = DisplayDrawer(self.board)
 
         # Starts the message listener in another thread
         message_listener = threading.Thread(target=self.receive_message)
@@ -62,10 +69,14 @@ class Client:
         # Format: Yourturn_word
         if command.startswith("Yourturn"):
             print(f"It is my turn and the word is: {command.split('_')[1]}")
+            self.drawer.update_board(command.split('_')[1])
+            self.turn_to_draw = True
 
         # Format: Notyourturn_lengtofword
         if command.startswith("Notyourturn"):
             print(f"It is not my turn and the word length is: {command.split('_')[1]}")
+            self.guesser.update_board(command.split('_')[1])
+            self.turn_to_draw = False
 
     def outgoing_command(self, command: str):
         if command.startswith("/connect"):

@@ -13,7 +13,7 @@ class Writer:
         self.font2 = pygame.font.SysFont('calibri', 20)
 
         self.screen = screen
-        self.board = Board(self.screen, self)
+        self.board = Board(self.screen)
 
         self.text_coords = (720, 515)
         self.client = client

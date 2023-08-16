@@ -14,7 +14,7 @@ screen.fill(BGCOLOR)
 pygame.display.flip()
 
 # Creates a client
-client = Client.Client()
+client = Client.Client(screen)
 
 # Sets up variables
 pen = Pen(screen)
@@ -26,7 +26,7 @@ event_handler = EventHandler(screen, client)
 client.assign_event_handler(event_handler)
 
 # Draws the board
-board = Board(screen, event_handler.writer)
+board = Board(screen)
 board.draw_stage()
 
 while GlobalVariables.running:

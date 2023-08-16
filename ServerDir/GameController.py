@@ -14,15 +14,12 @@ class Controller:
         self.drawn_coordinates = []
 
         # Now we create a list with the order of turns
-        rounds = 2
+        self.rounds = 2
         self.order_of_turns = []
-        self.turn = 0  # This checks whose turn it is
-        for i in range(rounds):
+
+        for i in range(self.rounds):
             for player in self.players:
                 self.order_of_turns.append(player)
-
-        # Starts the game loop in another thread
-        threading.Thread(target=self.game_loop).start()
 
     def assign_word(self):
         with open("words.txt", "r") as file:
@@ -38,13 +35,6 @@ class Controller:
         else:
             return False
 
-    # Needs to be run from another thread
-    def game_loop(self):
-        self.setup_turn()
-
-        while True:
-            pass
-
     '''
     This function sends all the necessary data to all the clients
     It lets the clients know if it is their turn or not
@@ -52,13 +42,20 @@ class Controller:
         # Format to drawer: "Yourturn_word"
         # Format to guesser: "Notyourturn_lentghOfWord"
     '''
+
     def setup_turn(self):
         self.word = self.assign_word()
         for player in self.players:
-            if player == self.order_of_turns[self.turn]:
+            if player == self.order_of_turns[0]: # First player in list is always the drawer
                 self.server.send_reply_to_client(f"Yourturn_{self.word}", player)
             else:
                 self.server.send_reply_to_client(f"Notyourturn_{len(self.word)}", player)
+
+
+
+    def next_turn(self):
+        self.order_of_turns.remove(0)
+
 
     def timer(self):
         pass

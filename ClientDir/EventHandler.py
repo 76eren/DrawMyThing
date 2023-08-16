@@ -15,10 +15,10 @@ class EventHandler:
         self.screen = screen
 
         # Sometimes I feel like making all of these objects a static somewhere would have saved me a lot of trouble
-        self.pen = Pen(screen)
         self.client = client
+        self.pen = Pen(screen)
         self.writer = Writer(self.screen, client)
-        self.board = Board(self.screen, self.writer)
+        self.board = Board(self.screen)
 
         self.board.redraw_all()
 
@@ -34,7 +34,7 @@ class EventHandler:
                 self.pen.isPressed = False
 
             if event.type == pygame.MOUSEMOTION and self.pen.isPressed:
-                if self.pen.isTurnToDraw:
+                if self.client.turn_to_draw:
 
                     (x, y) = pygame.mouse.get_pos()
 
@@ -56,3 +56,7 @@ class EventHandler:
 
                 else:
                     self.writer.write(event.unicode)
+
+
+    def check_if_anything_needs_to_be_displayed(self):
+        pass

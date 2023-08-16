@@ -46,7 +46,9 @@ class Server:
         # Format: startGame_playernumber_lobbynumber
         if command.startswith("startGame"):
             room = command.split("_")[1]
-            self.started_game_rooms.append(Controller(room, self.room.get(room), self))
+            started_game_object = Controller(room, self.room.get(room), self)
+            started_game_object.setup_turn()
+            self.started_game_rooms.append(started_game_object)
 
     def lobby_join(self, client_address, room_number, create_new_lobby=False):
         if create_new_lobby:

@@ -6,10 +6,9 @@ pygame.init()
 
 
 class Board:
-    def __init__(self, screen, writer):
+    def __init__(self, screen):
         self.screen = screen
         self.pen = Pen(self.screen)
-        self.writer = writer
 
         self.font_for_current_written_text = pygame.font.SysFont('calibri', 25)
         self.font_for_display = pygame.font.SysFont('calibri', 55)
