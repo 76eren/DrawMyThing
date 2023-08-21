@@ -1,7 +1,5 @@
 import socket
 from GameController import Controller
-import threading
-
 
 class Server:
     def __init__(self):
@@ -49,6 +47,22 @@ class Server:
             started_game_object = Controller(room, self.room.get(room), self)
             started_game_object.setup_turn()
             self.started_game_rooms.append(started_game_object)
+
+        # Format: coordinate_playernumber_lobbynumber_x_y
+        if command.startswith("coordinate"):
+            coordinates = (command.split("_")[3], command.split("_")[4])
+            room = command.split("_")[2]
+            player_number = command.split("_")[1]
+
+            # We get the correct GameController object, this process may be slow, so perhaps I should change it
+            for game in self.started_game_rooms:
+                if game.room == int(room):
+                    game.drawn_coordinates.append(coordinates)
+
+            # Now we forward this message to all clients EXCEPT the sender
+            for index, player in enumerate(self.room.get(room)):
+                if index + 1 != int(player_number):
+                    self.send_reply_to_client(command, player)
 
     def lobby_join(self, client_address, room_number, create_new_lobby=False):
         if create_new_lobby:

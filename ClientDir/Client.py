@@ -3,6 +3,12 @@ import threading
 from WordDisplay.DisplayGuesser import DisplayGuesser
 from WordDisplay.DisplayDrawer import DisplayDrawer
 from BoardDraw import Board
+from Pen import Pen
+from DrawnThingsTracker import StaticDrawnThings
+import DrawObject
+import pygame
+
+pygame.init()
 
 
 class Client:
@@ -17,6 +23,7 @@ class Client:
         self.lobby_number = None
         self.screen = screen
         self.board = Board(screen)
+        self.pen = Pen(screen)
 
         self.turn_to_draw = False
         self.drawn_coordinates = None
@@ -78,6 +85,28 @@ class Client:
             self.guesser.update_board(command.split('_')[1])
             self.turn_to_draw = False
 
+        # Format: coordinate_playernumber_lobbynumber_x_y
+        if command.startswith("coordinate"):
+            coordinates = (int(command.split("_")[3]), int(command.split("_")[4]))
+            StaticDrawnThings.draw_coordinates.append(DrawObject.DrawObject(
+                coordinates[0], coordinates[1], self.pen.drawSize, self.pen.BLUE
+            ))
+
+            thread = threading.Thread(target=self.draw, args=(coordinates[0], coordinates[1]))
+            thread.start()
+
+    # TODO: FIX THIS CRITICAL ISSUE!!!
+    def draw(self, x, y):
+        """
+               ISSUE:
+               This code is very slow, it takes a long time for the client to draw
+               It's not because the server is slow, it's because the client is just drawing/updating too slowly
+               It's still drawing even when all the packets have been received
+        """
+
+        self.pen.draw(x, y)
+        pygame.display.flip()
+
     def outgoing_command(self, command: str):
         if command.startswith("/connect"):
             try:
@@ -101,6 +130,10 @@ class Client:
                 self.send_message_to_chat("Starting game", "SYSTEM")
             else:
                 self.send_message_to_chat("Only the host can start the game", "SYSTEM")
+
+        # Format: coordinate_playernumber_lobbynumber_x_y
+        if command.startswith("coordinate"):
+            self.send_message(command)
 
     def assign_player_number(self, number):
         self.player_number = int(number)

@@ -5,8 +5,6 @@ import GlobalVariables
 from Pen import Pen
 from TextWriter import Writer
 from DrawObject import DrawObject
-from WordDisplay.DisplayDrawer import DisplayDrawer
-from WordDisplay.DisplayGuesser import DisplayGuesser
 from BoardDraw import Board
 
 
@@ -45,6 +43,8 @@ class EventHandler:
                     DrawnThingsTracker.StaticDrawnThings.draw_coordinates.append(
                         DrawObject(x, y, self.pen.drawSize, self.pen.BLUE))
 
+                    self.client.send_message(f"coordinate_{self.client.player_number}_{self.client.lobby_number}_{x}_{y}")
+
                     pygame.display.flip()
 
             elif event.type == KEYDOWN:
@@ -56,7 +56,6 @@ class EventHandler:
 
                 else:
                     self.writer.write(event.unicode)
-
 
     def check_if_anything_needs_to_be_displayed(self):
         pass

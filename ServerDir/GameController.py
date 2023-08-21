@@ -11,7 +11,7 @@ class Controller:
         self.server = server
         self.time_per_round_in_seconds = 80
         self.word = None
-        self.drawn_coordinates = []
+        self.drawn_coordinates = []  # This is going to be an array containing tuples that represent coordinates
 
         # Now we create a list with the order of turns
         self.rounds = 2
@@ -46,16 +46,13 @@ class Controller:
     def setup_turn(self):
         self.word = self.assign_word()
         for player in self.players:
-            if player == self.order_of_turns[0]: # First player in list is always the drawer
+            if player == self.order_of_turns[0]:  # First player in list is always the drawer
                 self.server.send_reply_to_client(f"Yourturn_{self.word}", player)
             else:
                 self.server.send_reply_to_client(f"Notyourturn_{len(self.word)}", player)
 
-
-
     def next_turn(self):
         self.order_of_turns.remove(0)
-
 
     def timer(self):
         pass
